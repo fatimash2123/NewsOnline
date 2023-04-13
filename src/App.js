@@ -4,9 +4,13 @@ import React, { Component } from 'react';
 import News from './components/News';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+
 export default class App extends Component {
+  apiKey = process.env.REACT_APP_NEWS_API_KEY
+
   render() {
     return (
+
       <BrowserRouter>
         <Navbar></Navbar>
         <Routes>

@@ -3,6 +3,7 @@ import NewsItem from './NewsItem'
 import Loader from './Loader'
 import propTypes from "prop-types"
 import InfiniteScroll from 'react-infinite-scroll-component'
+import LoadingBar from 'react-top-loading-bar';
 
 class News extends Component {
     //setting default values for props
@@ -12,7 +13,8 @@ class News extends Component {
     }
     static defaultProps = {
         country: "us",
-        category: "general"
+        category: "general",
+        progress: 0
     }
     constructor() {
         super()
@@ -20,28 +22,43 @@ class News extends Component {
         console.log(this.state)
 
     }
-
+    setProgress = (progress) => {
+        this.setState({ "progress": progress })
+    }
+    changeProgress = (progress) => {
+        alert(typeof (this.props.setProgress))
+        this.props.setProgress(progress)
+    }
     async componentDidMount() {
+        this.setProgress(30)
         const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=bbbeb05c4aa441feb13a0049127ac156&pageSize=${this.state.pageSize}&page=${this.state.page}`
         const res = await fetch(url)
         const data = await res.json()
+        this.setProgress(70)
         console.log(`data is ${data}`)
         this.setState({ "articles": data.articles, "totalResults": data.totalResults },
             () => { this.setState({ spinnerActivated: false }) });
         console.log(`the state now is ${this.state.articles}`)
+        this.setProgress(100)
         //changing the title according to category opened
         document.title = `NewsOnline-${!this.props.category ? "NewsOnline" : this.props.category}`
     }
 
+
+
     fetchData = () => {
         this.setState({ "page": this.state.page + 1 }, async () => {
+            this.setProgress(30)
             const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=bbbeb05c4aa441feb13a0049127ac156&pageSize=${this.state.pageSize}&page=${this.state.page}`
             const res = await fetch(url)
             const data = await res.json()
+            this.setProgress(70)
             console.log(`upcoming data is ${data[0]}`)
             this.setState({ articles: this.state.articles.concat(data.articles), spinnerActivated: false });
 
+            this.setProgress(100)
         })
+
 
     }
 
@@ -54,6 +71,12 @@ class News extends Component {
                 loader={<Loader></Loader>}
             >
                 <div className='container'>
+                    <LoadingBar
+                        height={3}
+                        color="red"
+                        progress={this.state.progress}>
+
+                    </LoadingBar>
                     <h1>Headlines-{this.props.category}</h1>
                     {this.state.spinnerActivated && <Loader></Loader>}
                     {
